@@ -1,9 +1,15 @@
 ---
+- name: restic versioncheck
+  include_tasks: restic_versioncheck.yml
+
+- name: autorestic versioncheck
+  include_tasks: autorestic_versioncheck.yml
+
 - name: install autorestic
   include_tasks: install_autorestic.yml
 
 - name: install restic
   include_tasks: install_restic.yml
 
-- name: configure autorestic
-  include_tasks: configure.yml
+# - name: configure autorestic
+#   include_tasks: configure.yml

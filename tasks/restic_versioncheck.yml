@@ -1,0 +1,63 @@
+---
+- name: Create directory for ansible custom facts
+  become: true
+  ansible.builtin.file:
+    state: directory
+    recurse: true
+    path: /etc/ansible/facts.d
+
+- name: Create facts file from template
+  become: true
+  ansible.builtin.template:
+    src: restic.fact.j2
+    dest: /etc/ansible/facts.d/restic.fact
+    mode: '0755'
+  register: restic__register_facts
+
+- name: Re-read facts after adding custom fact
+  become: true
+  ansible.builtin.setup:
+    filter: ansible_local
+
+- block:
+    - name: Check check latest dev restic version
+      uri:
+        url: "{{ restic_dev_url }}/version.txt"
+        return_content: true
+      register:
+        restic_latest_dev_version
+      check_mode: false
+    - name: Set variable to latest stable version number
+      set_fact:
+        restic_dev_version: "{{ restic_latest_dev_version.content | replace ('restic v', '', 1) | trim }}"
+
+- block:
+  - name: get latest GH restic version
+    uri:
+      url: https://api.github.com/repos/restic/restic/releases/latest
+      url_username: "{{ github_api_user | default (omit) }}"
+      url_password: "{{ github_api_pass | default (omit) }}"
+      return_content: true
+      force_basic_auth: "{{ github_api_auth | default (omit) }}"
+    register: release_version_registered
+    when: restic_download_latest_ver == True
+  - name: set restic version (latest)
+    set_fact:
+      restic_ver: "{{ release_version_registered.json.tag_name|regex_replace('v') }}"
+    when: restic_download_latest_ver == True
+  - name: set restic version (pinned)
+    set_fact:
+      restic_ver: "{{ restic_pinned_ver }}"
+    when: restic_download_latest_ver == False
+
+- name: dev Version
+  ansible.builtin.debug:
+    var: restic_dev_version
+
+- name: local restic version
+  ansible.builtin.debug:
+    var: ansible_local.restic
+
+- name: github Version
+  ansible.builtin.debug:
+    var: restic_ver

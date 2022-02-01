@@ -1,0 +1,23 @@
+---
+go_os_map:
+  Linux: 'linux'
+  FreeBSD: 'freebsd'
+
+go_arch_map:
+  i386: '386'
+  x86_64: 'amd64'
+  aarch64: 'arm64'
+
+restic_os: "{{ go_os_map[ansible_system] | default(ansible_system) }}"
+restic_arch: "{{ go_arch_map[ansible_architecture] | default(ansible_architecture) }}"
+
+autorestic_os: "{{ go_os_map[ansible_system] | default(ansible_system) }}"
+autorestic_arch: "{{ go_arch_map[ansible_architecture] | default(ansible_architecture) }}"
+
+restic_download_directory: "/tmp/restic"
+restic_install_directory: /usr/local/bin
+restic_install_path: "{{ restic_install_directory }}/restic"
+
+autorestic_download_directory: "/tmp/autorestic"
+autorestic_install_directory: /usr/local/bin
+autorestic_install_path: "{{ autorestic_install_directory }}/autorestic"
