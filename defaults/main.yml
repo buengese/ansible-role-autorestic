@@ -2,7 +2,7 @@
 ### Restic Install
 restic_download_latest_ver: true
 restic_pinned_ver: 0.12.1  # Overriden by 'restic_download_latest_ver' variable
-restic_use_dev_version: true # Ignore github version and download from local dev server
+restic_use_dev_version: true  # Ignore github version and download from local dev server
 
 restic_dev_url: https://static.bngs.io/restic/
 restic_gh_url: https://github.com/restic/restic/releases/download

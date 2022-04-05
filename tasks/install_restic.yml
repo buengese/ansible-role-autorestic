@@ -1,21 +1,21 @@
 ---
 - block:
     - name: ensure restic_download_directory does not exist
-      file:
+      ansible.builtin.file:
         path: "{{ restic_download_directory }}"
         state: absent
 
     - name: create restic_download_directory
-      file:
+      ansible.builtin.file:
         path: "{{ restic_download_directory }}"
         state: directory
         mode: 0755
 
     - name: download restic
-      get_url:
+      ansible.builtin.get_url:
         url: "{{ restic_gh_url }}/v{{ restic_ver }}/restic_{{ restic_ver }}_{{ restic_os }}_{{ restic_arch }}.bz2"
         dest: "{{ restic_download_directory }}"
-        force: yes
+        force: true
         owner: root
         group: root
         mode: +x
@@ -25,10 +25,12 @@
       delay: 2
 
     - name: set restic filename
-      set_fact: file_name="restic_{{ restic_ver }}_{{ restic_os }}_{{ restic_arch }}.bz2"
+      ansible.builtin.set_fact: file_name="restic_{{ restic_ver }}_{{ restic_os }}_{{ restic_arch }}.bz2"
 
     - name: unzip restic release
-      shell: "cd {{ restic_download_directory }} && bzip2 -d {{ file_name }} && mv {{ file_name | regex_replace('.bz2') }} {{ restic_install_path }}"
+      ansible.builtin.shell: >
+        cd {{ restic_download_directory }} && bzip2 -d {{ file_name }}
+        && mv {{ file_name | regex_replace('.bz2') }} {{ restic_install_path }}
 
   when:
     - not restic_use_dev_version
@@ -39,7 +41,8 @@
       ansible.builtin.get_url:
         url: "{{ restic_dev_url }}/restic_{{ restic_os }}_{{ restic_arch }}"
         dest: "/tmp/restic_{{ restic_os }}_{{ restic_arch }}"
-        force: yes
+        mode: 0644
+        force: true
       register: _download_archive
       until: _download_archive is succeeded
       retries: 5
@@ -55,4 +58,5 @@
       become: true
   when:
     - restic_use_dev_version
-    - (not ansible_local.restic.installed|d()|bool or restic_download_latest_ver or (ansible_local.restic.installed_version|d("0.0.0") != restic_latest_dev_version))
+    - (not ansible_local.restic.installed|d()|bool or restic_download_latest_ver
+      or (ansible_local.restic.installed_version|d("0.0.0") != restic_latest_dev_version))

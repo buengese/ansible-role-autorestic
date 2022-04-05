@@ -20,25 +20,25 @@
     filter: ansible_local
 
 - block:
-  - name: get latest GH autorestic version
-    uri:
-      url: https://api.github.com/repos/cupcakearmy/autorestic/releases/latest
-      url_username: "{{ github_api_user | default (omit) }}"
-      url_password: "{{ github_api_pass | default (omit) }}"
-      return_content: true
-      force_basic_auth: "{{ github_api_auth | default (omit) }}"
-    register: release_version_registered
-    when: autorestic_download_latest_ver == True
+    - name: get latest GH autorestic version
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/cupcakearmy/autorestic/releases/latest
+        url_username: "{{ github_api_user | default (omit) }}"
+        url_password: "{{ github_api_pass | default (omit) }}"
+        return_content: true
+        force_basic_auth: "{{ github_api_auth | default (omit) }}"
+      register: release_version_registered
+      when: autorestic_download_latest_ver == True
 
-  - name: set autorestic version (latest)
-    set_fact:
-      autorestic_ver: "{{ release_version_registered.json.tag_name|regex_replace('v') }}"
-    when: autorestic_download_latest_ver == True
+    - name: set autorestic version (latest)
+      ansible.builtin.set_fact:
+        autorestic_ver: "{{ release_version_registered.json.tag_name|regex_replace('v') }}"
+      when: autorestic_download_latest_ver == True
 
-  - name: set autorestic version (pinned)
-    set_fact:
-      autorestic_ver: "{{ autorestic_pinned_ver }}"
-    when: autorestic_download_latest_ver == False
+    - name: set autorestic version (pinned)
+      ansible.builtin.set_fact:
+        autorestic_ver: "{{ autorestic_pinned_ver }}"
+      when: autorestic_download_latest_ver == False
 
 - name: local autorestic version
   ansible.builtin.debug:
