@@ -1,9 +1,10 @@
 ---
 exclude_paths:
-  - galaxy_roles/
-  - galaxy_collections/
+  - molecule/
+  - .github/
 
 skip_list:
   - no-relative-paths
   - literal-compare
   - risky-shell-pipe
+  - no-changed-when
