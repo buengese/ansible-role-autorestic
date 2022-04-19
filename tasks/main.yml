@@ -5,6 +5,9 @@
 - name: autorestic versioncheck
   include_tasks: autorestic_versioncheck.yml
 
+- name: prepare install
+  include_tasks: prepare.yml
+
 - name: install autorestic
   include_tasks: install_autorestic.yml
 
