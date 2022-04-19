@@ -28,17 +28,17 @@
         return_content: true
         force_basic_auth: "{{ github_api_auth | default (omit) }}"
       register: release_version_registered
-      when: autorestic_download_latest_ver == True
+      when: autorestic_download_latest_ver
 
     - name: set autorestic version (latest)
       ansible.builtin.set_fact:
         autorestic_ver: "{{ release_version_registered.json.tag_name|regex_replace('v') }}"
-      when: autorestic_download_latest_ver == True
+      when: autorestic_download_latest_ver
 
     - name: set autorestic version (pinned)
       ansible.builtin.set_fact:
         autorestic_ver: "{{ autorestic_pinned_ver }}"
-      when: autorestic_download_latest_ver == False
+      when: not autorestic_download_latest_ver
 
 - name: local autorestic version
   ansible.builtin.debug:

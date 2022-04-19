@@ -40,15 +40,15 @@
         return_content: true
         force_basic_auth: "{{ github_api_auth | default (omit) }}"
       register: release_version_registered
-      when: restic_download_latest_ver == True
+      when: restic_download_latest_ver
     - name: set restic version (latest)
       ansible.builtin.set_fact:
         restic_ver: "{{ release_version_registered.json.tag_name|regex_replace('v') }}"
-      when: restic_download_latest_ver == True
+      when: restic_download_latest_ver
     - name: set restic version (pinned)
       ansible.builtin.set_fact:
         restic_ver: "{{ restic_pinned_ver }}"
-      when: restic_download_latest_ver == False
+      when: not restic_download_latest_ver
 
 - name: dev Version
   ansible.builtin.debug:

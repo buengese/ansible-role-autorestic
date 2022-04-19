@@ -22,4 +22,4 @@
 
 - name: run autorestic check
   ansible.builtin.command: "{{ autorestic_install_path }} check -c {{ autorestic_config_path }}"
-  when: autorestic_run_check == true and autorestic_config_yaml != "CHANGEME" and config_update.changed == true
+  when: autorestic_run_check and autorestic_config_yaml != "CHANGEME" and config_update.changed
