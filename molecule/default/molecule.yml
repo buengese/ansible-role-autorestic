@@ -20,4 +20,3 @@ provisioner:
     verify: verify.yml
 verifier:
   name: goss
-  directory: ../tests
