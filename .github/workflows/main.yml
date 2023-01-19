@@ -1,3 +1,4 @@
+# code: language=yaml
 ---
 name: Integration
 on:
@@ -17,8 +18,8 @@ jobs:
         distro:
           - debian11
           - debian10
-          - ubuntu2004
-          - fedora35
+          - ubuntu2204
+          - fedora37
 
     steps:
       - name: Check out the codebase.
