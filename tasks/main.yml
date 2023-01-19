@@ -1,18 +1,19 @@
+# code: language=ansible
 ---
-- name: restic versioncheck
-  include_tasks: restic_versioncheck.yml
+- name: Restic versioncheck
+  ansible.builtin.include_tasks: restic_versioncheck.yml
 
-- name: autorestic versioncheck
-  include_tasks: autorestic_versioncheck.yml
+- name: Autorestic versioncheck
+  ansible.builtin.include_tasks: autorestic_versioncheck.yml
 
-- name: prepare install
-  include_tasks: prepare.yml
+- name: Prepare install
+  ansible.builtin.include_tasks: prepare.yml
 
-- name: install autorestic
-  include_tasks: install_autorestic.yml
+- name: Install autorestic
+  ansible.builtin.include_tasks: install_autorestic.yml
 
-- name: install restic
-  include_tasks: install_restic.yml
+- name: Install restic
+  ansible.builtin.include_tasks: install_restic.yml
 
 # - name: configure autorestic
 #   include_tasks: configure.yml

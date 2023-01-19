@@ -1,17 +1,22 @@
+# code: language=ansible
 ---
-- block:
-    - name: ensure restic_download_directory does not exist
+- when:
+    - not restic_use_dev_version
+    - (not ansible_local.restic.installed|d()|bool) or (restic_download_latest_ver and (ansible_local.restic.installed_version|d("0.0.0")) != restic_ver)
+
+  block:
+    - name: Ensure restic_download_directory does not exist
       ansible.builtin.file:
         path: "{{ restic_download_directory }}"
         state: absent
 
-    - name: create restic_download_directory
+    - name: Create restic_download_directory
       ansible.builtin.file:
         path: "{{ restic_download_directory }}"
         state: directory
         mode: 0755
 
-    - name: download restic
+    - name: Download restic
       ansible.builtin.get_url:
         url: "{{ restic_gh_url }}/v{{ restic_ver }}/restic_{{ restic_ver }}_{{ restic_os }}_{{ restic_arch }}.bz2"
         dest: "{{ restic_download_directory }}"
@@ -24,20 +29,22 @@
       retries: 5
       delay: 2
 
-    - name: set restic filename
-      ansible.builtin.set_fact: file_name="restic_{{ restic_ver }}_{{ restic_os }}_{{ restic_arch }}.bz2"
+    - name: Set restic filename
+      ansible.builtin.set_fact:
+        file_name: "restic_{{ restic_ver }}_{{ restic_os }}_{{ restic_arch }}.bz2"
 
-    - name: unzip restic release
+    - name: Unzip restic release
       ansible.builtin.shell: >
         cd {{ restic_download_directory }} && bzip2 -d {{ file_name }}
         && mv {{ file_name | regex_replace('.bz2') }} {{ restic_install_path }}
 
-  when:
-    - not restic_use_dev_version
-    - (not ansible_local.restic.installed|d()|bool) or (restic_download_latest_ver and (ansible_local.restic.installed_version|d("0.0.0")) != restic_ver)
+- when:
+    - restic_use_dev_version
+    - (not ansible_local.restic.installed|d()|bool or restic_download_latest_ver
+      or (ansible_local.restic.installed_version|d("0.0.0") != restic_latest_dev_version))
 
-- block:
-    - name: download restic binary
+  block:
+    - name: Download restic binary
       ansible.builtin.get_url:
         url: "{{ restic_dev_url }}/restic_{{ restic_os }}_{{ restic_arch }}"
         dest: "/tmp/restic_{{ restic_os }}_{{ restic_arch }}"
@@ -48,7 +55,7 @@
       retries: 5
       delay: 2
 
-    - name: propagate restic binary
+    - name: Propagate restic binary
       ansible.builtin.copy:
         src: "/tmp/restic_{{ restic_os }}_{{ restic_arch }}"
         remote_src: true
@@ -56,7 +63,3 @@
         mode: 0755
         owner: root
       become: true
-  when:
-    - restic_use_dev_version
-    - (not ansible_local.restic.installed|d()|bool or restic_download_latest_ver
-      or (ansible_local.restic.installed_version|d("0.0.0") != restic_latest_dev_version))

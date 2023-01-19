@@ -1,3 +1,4 @@
+# code: language=ansible
 ---
 - name: Create directory for ansible custom facts
   become: true
@@ -29,35 +30,35 @@
       check_mode: false
     - name: Set variable to latest stable version number
       ansible.builtin.set_fact:
-        restic_dev_version: "{{ restic_latest_dev_version.content | replace ('restic v', '', 1) | trim }}"
+        restic_dev_version: "{{ restic_latest_dev_version.content | replace('restic v', '', 1) | trim }}"
 
 - block:
-    - name: get latest GH restic version
+    - name: Get latest GH restic version
       ansible.builtin.uri:
         url: https://api.github.com/repos/restic/restic/releases/latest
-        url_username: "{{ github_api_user | default (omit) }}"
-        url_password: "{{ github_api_pass | default (omit) }}"
+        url_username: "{{ github_api_user | default(omit) }}"
+        url_password: "{{ github_api_pass | default(omit) }}"
         return_content: true
-        force_basic_auth: "{{ github_api_auth | default (omit) }}"
+        force_basic_auth: "{{ github_api_auth | default(omit) }}"
       register: release_version_registered
       when: restic_download_latest_ver
-    - name: set restic version (latest)
+    - name: Set restic version (latest)
       ansible.builtin.set_fact:
-        restic_ver: "{{ release_version_registered.json.tag_name|regex_replace('v') }}"
+        restic_ver: "{{ release_version_registered.json.tag_name | regex_replace('v') }}"
       when: restic_download_latest_ver
-    - name: set restic version (pinned)
+    - name: Set restic version (pinned)
       ansible.builtin.set_fact:
         restic_ver: "{{ restic_pinned_ver }}"
       when: not restic_download_latest_ver
 
-- name: dev Version
+- name: Dev Version
   ansible.builtin.debug:
     var: restic_dev_version
 
-- name: local restic version
+- name: Local restic version
   ansible.builtin.debug:
     var: ansible_local.restic
 
-- name: github Version
+- name: Github Version
   ansible.builtin.debug:
     var: restic_ver

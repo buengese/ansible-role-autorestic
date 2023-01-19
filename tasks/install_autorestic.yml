@@ -1,17 +1,20 @@
+# code: language=ansible
 ---
-- block:
-    - name: ensure autorestic_download_directory does not exist
+- when:
+    - (not ansible_local.autorestic.installed|d()|bool or (ansible_local.autorestic.installed_version|d("0.0.0") != autorestic_ver))
+  block:
+    - name: Ensure autorestic_download_directory does not exist
       ansible.builtin.file:
         path: "{{ autorestic_download_directory }}"
         state: absent
 
-    - name: create autorestic_download_directory
+    - name: Create autorestic_download_directory
       ansible.builtin.file:
         path: "{{ autorestic_download_directory }}"
         state: directory
         mode: 0755
 
-    - name: download autorestic
+    - name: Download autorestic
       ansible.builtin.get_url:
         url: "{{ autorestic_gh_url }}/v{{ autorestic_ver }}/autorestic_{{ autorestic_ver }}_{{ autorestic_os }}_{{ autorestic_arch }}.bz2"
         dest: "{{ autorestic_download_directory }}"
@@ -19,13 +22,11 @@
         owner: root
         mode: +x
 
-    - name: set autorestic filename
-      ansible.builtin.set_fact: file_name="autorestic_{{ autorestic_ver }}_{{ autorestic_os }}_{{ autorestic_arch }}.bz2"
+    - name: Set autorestic filename
+      ansible.builtin.set_fact:
+        file_name: "autorestic_{{ autorestic_ver }}_{{ autorestic_os }}_{{ autorestic_arch }}.bz2"
 
-    - name: unzip autorestic release
+    - name: Unzip autorestic release
       ansible.builtin.shell: >
         cd {{ autorestic_download_directory }} && bzip2 -d {{ file_name }}
         && mv {{ file_name | regex_replace('.bz2') }} {{ autorestic_install_path }}
-
-  when:
-    - (not ansible_local.autorestic.installed|d()|bool or (ansible_local.autorestic.installed_version|d("0.0.0") != autorestic_ver))
